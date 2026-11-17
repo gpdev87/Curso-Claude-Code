@@ -43,7 +43,7 @@ describe("tmdbFetch", () => {
   it("throws TmdbError status 0 without calling fetch when the token is missing", async () => {
     vi.stubEnv("TMDB_READ_ACCESS_TOKEN", "");
 
-    const error = await tmdbFetch("/x", {}, 60).catch((e) => e);
+    const error = (await tmdbFetch("/x", {}, 60).catch((e: unknown) => e)) as TmdbError;
 
     expect(error).toBeInstanceOf(TmdbError);
     expect(error.status).toBe(0);
@@ -53,7 +53,7 @@ describe("tmdbFetch", () => {
   it("throws TmdbError status 0 on network failure", async () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
 
-    const error = await tmdbFetch("/x", {}, 60).catch((e) => e);
+    const error = (await tmdbFetch("/x", {}, 60).catch((e: unknown) => e)) as TmdbError;
 
     expect(error).toBeInstanceOf(TmdbError);
     expect(error.status).toBe(0);

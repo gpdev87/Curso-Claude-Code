@@ -40,6 +40,11 @@ export function serializeMyStreamings(ids: string[]): string {
   return ids.join(",");
 }
 
+/** Grava a escolha no navegador (1 ano). Só usar no cliente. */
+export function writeMyStreamingsCookie(ids: string[]): void {
+  document.cookie = `${COOKIE_NAME}=${encodeURIComponent(serializeMyStreamings(ids))}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export function providerIdsFor(chipIds: string[]): number[] {
   const ids = new Set<number>();
   for (const chipId of chipIds) {
