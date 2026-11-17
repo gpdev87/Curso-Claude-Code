@@ -27,7 +27,15 @@ function Chip({ label, on, onClick }: { label: string; on: boolean; onClick: () 
   );
 }
 
-export function StreamingSelector({ selected, others }: { selected: string[]; others: Provider[] }) {
+export function StreamingSelector({
+  selected,
+  others,
+  saveToAccount,
+}: {
+  selected: string[];
+  others: Provider[];
+  saveToAccount?: (ids: string[]) => Promise<unknown>;
+}) {
   const router = useRouter();
   const [current, setCurrent] = useState(selected);
   const [showOthers, setShowOthers] = useState(false);
@@ -47,6 +55,8 @@ export function StreamingSelector({ selected, others }: { selected: string[]; ot
     const next = current.includes(id) ? current.filter((c) => c !== id) : [...current, id];
     setCurrent(next);
     writeMyStreamingsCookie(next);
+    // O cookie já garante a tela; a conta é salva sem esperar e falhas são ignoradas.
+    void Promise.resolve(saveToAccount?.(next)).catch(() => {});
     router.refresh();
   }
 

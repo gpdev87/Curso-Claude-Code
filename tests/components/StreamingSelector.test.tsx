@@ -44,6 +44,23 @@ describe("StreamingSelector", () => {
   });
 });
 
+describe("StreamingSelector saveToAccount", () => {
+  it("calls saveToAccount with the new selection", async () => {
+    const save = vi.fn().mockResolvedValue({ ok: true });
+    render(<StreamingSelector selected={["netflix"]} others={[]} saveToAccount={save} />);
+    await userEvent.click(screen.getByRole("button", { name: "HBO Max" }));
+    expect(save).toHaveBeenCalledWith(["netflix", "max"]);
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores saveToAccount failures", async () => {
+    const save = vi.fn().mockRejectedValue(new Error("x"));
+    render(<StreamingSelector selected={[]} others={[]} saveToAccount={save} />);
+    await userEvent.click(screen.getByRole("button", { name: "Netflix" }));
+    expect(cookieValue()).toBe("netflix");
+  });
+});
+
 describe("StreamingSelector with saved extra providers", () => {
   it("shows selected p<id> chips without expanding, so they can be cleared", async () => {
     render(<StreamingSelector selected={["p190"]} others={[{ id: 190, name: "Curiosity", logoPath: null }]} />);

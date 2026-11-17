@@ -4,6 +4,8 @@ import { PersonalizeNotice } from "@/components/PersonalizeNotice";
 import { ShelfList } from "@/components/ShelfList";
 import { StreamingSelector } from "@/components/StreamingSelector";
 import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
+import { saveStreamings } from "@/app/streamings-actions";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { getAllShelves } from "@/lib/tmdb/discover";
 import { getMovieDetail } from "@/lib/tmdb/movie";
 import { getOtherBrProviders } from "@/lib/tmdb/search";
@@ -12,6 +14,7 @@ export default async function Home() {
   const cookieStore = await cookies();
   const selected = parseMyStreamings(cookieStore.get(COOKIE_NAME)?.value);
   const myProviderIds = providerIdsFor(selected);
+  const user = await getCurrentUser();
 
   const [shelves, others] = await Promise.all([
     getAllShelves(myProviderIds),
@@ -38,7 +41,7 @@ export default async function Home() {
           {selected.length === 0 && <PersonalizeNotice />}
         </div>
         <div className="mt-3">
-          <StreamingSelector selected={selected} others={others} />
+          <StreamingSelector selected={selected} others={others} saveToAccount={user ? saveStreamings : undefined} />
         </div>
       </section>
 
