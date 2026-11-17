@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CineCasa — o que tem de bom nos seus streamings
 
-## Getting Started
+Catálogo de filmes para família e amigos: mostra, em prateleiras, os filmes disponíveis por assinatura nos streamings do Brasil, filtrados pelos serviços que cada pessoa marca em "Meus streamings".
 
-First, run the development server:
+Dados do [TMDB](https://www.themoviedb.org); disponibilidade em streaming fornecida pela JustWatch.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Preparar
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Crie uma conta em https://www.themoviedb.org e, em **Configurações → API**, copie o **API Read Access Token** (o token longo, não a "API Key").
+2. Copie `.env.example` para `.env.local` e preencha:
+   ```
+   TMDB_READ_ACCESS_TOKEN=<seu token>
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   ```
+3. `npm install`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev`: abre em http://localhost:3000
+- `npm test`: roda os testes
+- `npm run lint` / `npm run build`
+- `node scripts/list-br-providers.mjs`: lista os streamings do TMDB no Brasil (use para conferir os IDs em `src/lib/streamings.ts`)
 
-## Learn More
+## Publicar na Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Importe o repositório em https://vercel.com/new.
+2. Em **Environment Variables**, defina `TMDB_READ_ACCESS_TOKEN` e `NEXT_PUBLIC_SITE_URL` (a URL final, ex.: `https://cinecasa.vercel.app`).
+3. Publique e teste colando o link de um filme no WhatsApp: deve aparecer a prévia com o pôster.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Design: `docs/superpowers/specs/2026-11-16-catalogo-filmes-design.md`
+- Plano: `docs/superpowers/plans/2026-11-17-catalogo-filmes.md`
