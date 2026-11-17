@@ -52,4 +52,20 @@ describe("SiteHeader", () => {
     const [text] = screen.getAllByRole("link", { name: "Minhas listas" });
     expect(text).toHaveAttribute("aria-current", "page");
   });
+
+  it("returns focus to the Conta button on Esc", () => {
+    render(<SiteHeader userEmail="ana@exemplo.com" signOutAction={signOut} />);
+    fireEvent.click(screen.getByRole("button", { name: "Conta" }));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.getByRole("button", { name: "Conta" })).toHaveFocus();
+  });
+
+  it("closes the menu when the pathname changes", () => {
+    const { rerender } = render(<SiteHeader userEmail="ana@exemplo.com" signOutAction={signOut} />);
+    fireEvent.click(screen.getByRole("button", { name: "Conta" }));
+    expect(screen.getByRole("button", { name: "Sair" })).toBeInTheDocument();
+    pathname.value = "/busca";
+    rerender(<SiteHeader userEmail="ana@exemplo.com" signOutAction={signOut} />);
+    expect(screen.queryByRole("button", { name: "Sair" })).not.toBeInTheDocument();
+  });
 });

@@ -15,8 +15,11 @@ type Props = { userEmail: string | null; signOutAction: () => Promise<void> };
 export function SiteHeader({ userEmail, signOutAction }: Props) {
   const pathname = usePathname();
   const [solid, setSolid] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  // O menu guarda a rota em que foi aberto: ao navegar, fecha sozinho.
+  const [openPath, setOpenPath] = useState<string | null>(null);
+  const menuOpen = openPath === pathname;
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -28,10 +31,13 @@ export function SiteHeader({ userEmail, signOutAction }: Props) {
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") {
+        setOpenPath(null);
+        buttonRef.current?.focus();
+      }
     };
     const onDown = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenPath(null);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
@@ -92,10 +98,11 @@ export function SiteHeader({ userEmail, signOutAction }: Props) {
         {userEmail ? (
           <div ref={menuRef} className="relative">
             <button
+              ref={buttonRef}
               type="button"
               aria-label="Conta"
               aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => setOpenPath(menuOpen ? null : pathname)}
               className="grid h-10 w-10 place-items-center rounded-full text-texto hover:bg-white/10"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
