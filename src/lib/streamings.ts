@@ -1,0 +1,56 @@
+export type StreamingChip = { id: string; name: string; providerIds: number[] };
+
+// IDs de provedor do TMDB para o Brasil (watch_region=BR).
+// Cada chip agrupa as variantes do mesmo serviço (com anúncios, canal Amazon…).
+// Conferir com `node scripts/list-br-providers.mjs`.
+export const STREAMINGS: StreamingChip[] = [
+  { id: "netflix", name: "Netflix", providerIds: [8, 1796] },
+  { id: "prime", name: "Prime Video", providerIds: [119, 2100] },
+  { id: "max", name: "Max", providerIds: [1899] },
+  { id: "disney", name: "Disney+", providerIds: [337] },
+  { id: "globoplay", name: "Globoplay", providerIds: [307] },
+  { id: "appletv", name: "Apple TV+", providerIds: [350, 2243] },
+  { id: "paramount", name: "Paramount+", providerIds: [531, 582] },
+  // TODO(verificar com token): ID do Mercado Play ainda não confirmado; chip sem IDs fica oculto.
+  { id: "mercadoplay", name: "Mercado Play", providerIds: [] },
+];
+
+export const COOKIE_NAME = "meus_streamings";
+
+const KNOWN_CHIPS = new Set(STREAMINGS.map((s) => s.id));
+const RAW_CHIP = /^p(\d+)$/;
+
+export function parseMyStreamings(value: string | undefined): string[] {
+  if (!value) return [];
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    return [];
+  }
+  const result: string[] = [];
+  for (const part of decoded.split(",")) {
+    const id = part.trim();
+    if ((KNOWN_CHIPS.has(id) || RAW_CHIP.test(id)) && !result.includes(id)) result.push(id);
+  }
+  return result;
+}
+
+export function serializeMyStreamings(ids: string[]): string {
+  return ids.join(",");
+}
+
+export function providerIdsFor(chipIds: string[]): number[] {
+  const ids = new Set<number>();
+  for (const chipId of chipIds) {
+    const chip = STREAMINGS.find((s) => s.id === chipId);
+    if (chip) chip.providerIds.forEach((id) => ids.add(id));
+    const raw = RAW_CHIP.exec(chipId);
+    if (raw) ids.add(Number(raw[1]));
+  }
+  return [...ids];
+}
+
+export function curatedProviderIds(): Set<number> {
+  return new Set(STREAMINGS.flatMap((s) => s.providerIds));
+}
