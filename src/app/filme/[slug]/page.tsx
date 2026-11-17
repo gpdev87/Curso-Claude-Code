@@ -3,12 +3,15 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { MarkButtons } from "@/components/MarkButtons";
 import { ProviderList } from "@/components/ProviderList";
 import { ShareButton } from "@/components/ShareButton";
 import { Shelf } from "@/components/Shelf";
 import { formatRuntime, imageUrl, movieSlug, parseMovieSlug, releaseYear } from "@/lib/format";
+import { getMarkStatus } from "@/lib/marks";
 import { siteUrl } from "@/lib/site";
 import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { annotateRecommendations, getMovieDetail } from "@/lib/tmdb/movie";
 
 const loadMovie = cache(async (slug: string) => {
@@ -40,7 +43,11 @@ export default async function MoviePage({ params }: PageProps<"/filme/[slug]">) 
 
   const cookieStore = await cookies();
   const myProviderIds = providerIdsFor(parseMyStreamings(cookieStore.get(COOKIE_NAME)?.value));
-  const recommendations = await annotateRecommendations(movie.recommendations, myProviderIds);
+  const [recommendations, user, markStatus] = await Promise.all([
+    annotateRecommendations(movie.recommendations, myProviderIds),
+    getCurrentUser(),
+    getMarkStatus(movie.id),
+  ]);
 
   const backdrop = imageUrl(movie.backdropPath, "w1280") ?? imageUrl(movie.posterPath, "w780");
   const poster = imageUrl(movie.posterPath, "w342");
@@ -49,6 +56,7 @@ export default async function MoviePage({ params }: PageProps<"/filme/[slug]">) 
     formatRuntime(movie.runtime),
     movie.certification ? `Classificação ${movie.certification}` : null,
   ].filter(Boolean);
+  const loginHref = "/entrar?next=" + encodeURIComponent("/filme/" + slug);
   const shareUrl = `${siteUrl()}/filme/${movieSlug(movie.id, movie.title)}`;
 
   return (
@@ -105,6 +113,12 @@ export default async function MoviePage({ params }: PageProps<"/filme/[slug]">) 
                   Ver trailer
                 </a>
               )}
+              <MarkButtons
+                movie={{ movieId: movie.id, title: movie.title, posterPath: movie.posterPath }}
+                initialStatus={markStatus}
+                loggedIn={user !== null}
+                loginHref={loginHref}
+              />
               <ShareButton title={movie.title} url={shareUrl} />
             </div>
 
