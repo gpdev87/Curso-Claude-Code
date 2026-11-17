@@ -1,0 +1,38 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
+
+// Renova a sessão do Supabase e repassa os cookies atualizados.
+export async function proxy(request: NextRequest) {
+  if (!isSupabaseConfigured()) return NextResponse.next();
+
+  let response = NextResponse.next({ request });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        },
+      },
+    },
+  );
+
+  // Não coloque código entre createServerClient e getUser.
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Falha de rede não pode derrubar a navegação.
+  }
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+};
