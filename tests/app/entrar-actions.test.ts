@@ -4,8 +4,8 @@ const store = new Map<string, string>();
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (store.has(name) ? { name, value: store.get(name)! } : undefined),
-    // Next codifica o valor ao gravar e decodifica ao ler; simulamos o ciclo completo.
-    set: (name: string, value: string) => void store.set(name, decodeURIComponent(encodeURIComponent(value))),
+    // Como o Next, grava o valor codificado: parseMyStreamings precisa decodificar.
+    set: (name: string, value: string) => void store.set(name, encodeURIComponent(value)),
   }),
 }));
 vi.mock("next/navigation", () => ({
@@ -78,7 +78,10 @@ describe("signIn", () => {
   it("proceeds to redirect when reading user_settings fails", async () => {
     auth.signInWithPassword.mockResolvedValue(ok);
     maybeSingle.mockRejectedValue(new Error("boom"));
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     await expect(signIn(undefined, form({ email: "a@b.com", password: "123456" }))).rejects.toThrow("REDIRECT:/");
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 });
 

@@ -36,7 +36,8 @@ export async function syncStreamingsAfterLogin(supabase: SupabaseClient, userId:
       maxAge: 31536000,
       sameSite: "lax",
     });
-  } catch {
+  } catch (error) {
     // segue sem sincronizar
+    console.error("Não foi possível sincronizar os streamings da conta.", error);
   }
 }
