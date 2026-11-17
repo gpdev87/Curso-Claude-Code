@@ -11,8 +11,17 @@ function Chip({ label, on, onClick }: { label: string; on: boolean; onClick: () 
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`shrink-0 rounded-full px-3 py-1 text-sm ${on ? "bg-red-600 text-white" : "bg-neutral-800 text-neutral-300"}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+        on
+          ? "border-projetor bg-projetor text-sala"
+          : "border-white/15 bg-poltrona/80 text-texto/80 hover:border-white/40 hover:text-texto"
+      }`}
     >
+      {on && (
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="-ml-0.5 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3">
+          <path d="m5 12 5 5 9-10" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
       {label}
     </button>
   );
@@ -42,7 +51,7 @@ export function StreamingSelector({ selected, others }: { selected: string[]; ot
   }
 
   return (
-    <div className="flex flex-wrap gap-2 px-4">
+    <div className="flex flex-wrap gap-2">
       {STREAMINGS.filter((s) => s.providerIds.length > 0).map((s) => (
         <Chip key={s.id} label={s.name} on={current.includes(s.id)} onClick={() => toggle(s.id)} />
       ))}
@@ -58,8 +67,9 @@ export function StreamingSelector({ selected, others }: { selected: string[]; ot
       {others.length > 0 && (
         <button
           type="button"
+          aria-expanded={showOthers}
           onClick={() => setShowOthers((v) => !v)}
-          className="shrink-0 rounded-full border border-neutral-700 px-3 py-1 text-sm text-neutral-400"
+          className="shrink-0 rounded-full border border-dashed border-white/25 px-3.5 py-1.5 text-sm text-apagado hover:border-white/50 hover:text-texto"
         >
           {showOthers ? "− menos" : "+ outros"}
         </button>

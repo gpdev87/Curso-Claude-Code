@@ -3,25 +3,39 @@ import Link from "next/link";
 import { imageUrl, movieSlug } from "@/lib/format";
 import type { MovieSummary } from "@/lib/tmdb/types";
 
-export function PosterCard({ movie, badge }: { movie: MovieSummary; badge?: string }) {
+export function PosterCard({ movie, badge, rank }: { movie: MovieSummary; badge?: string; rank?: number }) {
   const src = imageUrl(movie.posterPath, "w342");
   return (
     <Link
       href={`/filme/${movieSlug(movie.id, movie.title)}`}
-      className="relative block w-28 shrink-0 snap-start sm:w-36"
+      className={`group relative flex shrink-0 snap-start items-end ${rank ? "" : "w-32 sm:w-40"}`}
     >
-      <div className="aspect-[2/3] overflow-hidden rounded-md bg-neutral-800">
+      {rank && (
+        <span
+          aria-hidden="true"
+          className="rank-numeral -mr-4 font-display text-[8.5rem] font-black leading-[0.72] tracking-tighter sm:-mr-5 sm:text-[11rem]"
+        >
+          {rank}
+        </span>
+      )}
+      <div
+        className={`relative aspect-[2/3] shrink-0 overflow-hidden rounded-md bg-poltrona ring-projetor transition duration-200 group-hover:ring-2 group-focus-visible:ring-2 motion-safe:group-hover:-translate-y-1 ${
+          rank ? "w-28 sm:w-36" : "w-full"
+        }`}
+      >
         {src ? (
           <img src={src} alt={movie.title} loading="lazy" className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full items-end p-2 text-xs font-semibold text-neutral-300">{movie.title}</div>
+          <div className="flex h-full items-end bg-gradient-to-br from-cortina to-poltrona p-3 font-display text-lg font-bold leading-tight text-texto/80">
+            {movie.title}
+          </div>
+        )}
+        {badge && (
+          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-2 pb-1.5 pt-5 text-[11px] font-semibold text-assina">
+            {badge}
+          </span>
         )}
       </div>
-      {badge && (
-        <span className="absolute left-1 top-1 rounded bg-emerald-600 px-1 text-[10px] font-semibold text-white">
-          {badge}
-        </span>
-      )}
     </Link>
   );
 }

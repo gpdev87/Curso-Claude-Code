@@ -18,23 +18,23 @@ const genre = (id: string, title: string, genreId: number): ShelfDef => ({
 });
 
 export const SHELVES: ShelfDef[] = [
-  { id: "em-alta", title: "🔥 Em alta nos seus streamings", sort: "popularity.desc" },
-  { id: "mais-avaliados", title: "⭐ Mais bem avaliados", sort: "vote_average.desc", minVotes: 300 },
+  { id: "em-alta", title: "Top 10 em alta hoje", sort: "popularity.desc" },
+  { id: "mais-avaliados", title: "Mais bem avaliados", sort: "vote_average.desc", minVotes: 300 },
   {
     id: "recem-lancados",
-    title: "🆕 Recém-lançados",
+    title: "Recém-lançados",
     sort: "primary_release_date.desc",
     releasedUntilToday: true,
     minVotes: 20,
   },
-  genre("comedia", "😂 Comédia", 35),
-  genre("acao", "💥 Ação", 28),
-  genre("terror", "😱 Terror", 27),
-  genre("familia", "👨‍👩‍👧 Família", 10751),
-  genre("drama", "🎭 Drama", 18),
-  genre("animacao", "🧸 Animação", 16),
-  genre("romance", "❤️ Romance", 10749),
-  genre("ficcao", "🚀 Ficção científica", 878),
+  genre("comedia", "Comédia", 35),
+  genre("acao", "Ação", 28),
+  genre("terror", "Terror", 27),
+  genre("familia", "Família", 10751),
+  genre("drama", "Drama", 18),
+  genre("animacao", "Animação", 16),
+  genre("romance", "Romance", 10749),
+  genre("ficcao", "Ficção científica", 878),
 ];
 
 export function buildDiscoverParams(shelf: ShelfDef, providerIds: number[], today: string): TmdbParams {
