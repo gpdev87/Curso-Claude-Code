@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import type { AuthState } from "@/app/entrar/actions";
 
-type AuthState = { error?: string; info?: string; email?: string } | undefined;
 type AuthAction = (prev: AuthState, form: FormData) => Promise<AuthState>;
 type Mode = "entrar" | "criar" | "esqueci";
 
@@ -30,19 +30,59 @@ export function AuthForm({
   resetAction: AuthAction;
 }) {
   const [mode, setMode] = useState<Mode>("entrar");
+  const [email, setEmail] = useState("");
+  const [switched, setSwitched] = useState(false);
   const action = mode === "entrar" ? signInAction : mode === "criar" ? signUpAction : resetAction;
+
+  function change(m: Mode) {
+    setSwitched(true);
+    setMode(m);
+  }
+
+  // key=mode: cada modo começa com o estado da action zerado.
+  return (
+    <ModeForm
+      key={mode}
+      mode={mode}
+      action={action}
+      next={next}
+      email={email}
+      onEmailChange={setEmail}
+      initialError={switched ? undefined : initialError}
+      onModeChange={change}
+    />
+  );
+}
+
+function ModeForm({
+  mode,
+  action,
+  next,
+  email,
+  onEmailChange,
+  initialError,
+  onModeChange,
+}: {
+  mode: Mode;
+  action: AuthAction;
+  next: string;
+  email: string;
+  onEmailChange: (email: string) => void;
+  initialError?: string;
+  onModeChange: (mode: Mode) => void;
+}) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const error = state?.error ?? (state === undefined ? initialError : undefined);
   const { title, button } = COPY[mode];
 
   return (
-    <form action={formAction} key={mode} className="mx-auto w-full max-w-sm">
+    <form action={formAction} className="mx-auto w-full max-w-sm">
       <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
       <input type="hidden" name="next" value={next} />
 
       <label className="mt-6 block text-sm font-medium">
         Email
-        <input type="email" name="email" required autoComplete="email" defaultValue={state?.email} className={inputClass} />
+        <input type="email" name="email" required autoComplete="email" value={email} onChange={(e) => onEmailChange(e.target.value)} className={inputClass} />
       </label>
 
       {mode !== "esqueci" && (
@@ -81,16 +121,16 @@ export function AuthForm({
       <div className="mt-5 flex flex-col items-start gap-2">
         {mode === "entrar" && (
           <>
-            <button type="button" onClick={() => setMode("criar")} className={linkClass}>
+            <button type="button" onClick={() => onModeChange("criar")} className={linkClass}>
               Não tem conta? Criar conta
             </button>
-            <button type="button" onClick={() => setMode("esqueci")} className={linkClass}>
+            <button type="button" onClick={() => onModeChange("esqueci")} className={linkClass}>
               Esqueci minha senha
             </button>
           </>
         )}
         {mode !== "entrar" && (
-          <button type="button" onClick={() => setMode("entrar")} className={linkClass}>
+          <button type="button" onClick={() => onModeChange("entrar")} className={linkClass}>
             Já tem conta? Entrar
           </button>
         )}

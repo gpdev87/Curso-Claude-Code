@@ -51,4 +51,22 @@ describe("AuthForm", () => {
     const { container } = setup();
     expect(container.querySelector('input[name="next"]')).toHaveValue("/minhas-listas");
   });
+
+  it("clears the error when switching mode", async () => {
+    const signIn = vi.fn(async () => ({ error: "Email ou senha incorretos.", email: "a@b.com" }));
+    setup({ signInAction: signIn });
+    await userEvent.type(screen.getByLabelText("Email"), "a@b.com");
+    await userEvent.type(screen.getByLabelText("Senha"), "123456");
+    await userEvent.click(screen.getByRole("button", { name: "Entrar" }));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Não tem conta? Criar conta" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("keeps the typed email when switching mode", async () => {
+    setup();
+    await userEvent.type(screen.getByLabelText("Email"), "a@b.com");
+    await userEvent.click(screen.getByRole("button", { name: "Esqueci minha senha" }));
+    expect(screen.getByLabelText("Email")).toHaveValue("a@b.com");
+  });
 });

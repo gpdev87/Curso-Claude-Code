@@ -1,8 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-
-type AuthState = { error?: string; info?: string; email?: string } | undefined;
+import type { AuthState } from "@/app/entrar/actions";
 
 export function NewPasswordForm({ action }: { action: (prev: AuthState, form: FormData) => Promise<AuthState> }) {
   const [state, formAction, pending] = useActionState(action, undefined);
