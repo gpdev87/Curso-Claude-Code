@@ -17,7 +17,7 @@ beforeEach(() => {
 describe("StreamingSelector", () => {
   it("adds a service to the cookie and refreshes", async () => {
     render(<StreamingSelector selected={["netflix"]} others={[]} />);
-    await userEvent.click(screen.getByRole("button", { name: "Max" }));
+    await userEvent.click(screen.getByRole("button", { name: "HBO Max" }));
     expect(cookieValue()).toBe("netflix%2Cmax");
     expect(refresh).toHaveBeenCalledTimes(1);
   });
@@ -29,9 +29,10 @@ describe("StreamingSelector", () => {
     expect(cookieValue()).toBe("max");
   });
 
-  it("hides curated chips that have no provider ids yet", () => {
+  it("shows every curated service, including Mercado Play", () => {
     render(<StreamingSelector selected={[]} others={[]} />);
-    expect(screen.queryByRole("button", { name: "Mercado Play" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Mercado Play" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Apple TV" })).toBeInTheDocument();
   });
 
   it("reveals other providers behind the + button as p<id> chips", async () => {

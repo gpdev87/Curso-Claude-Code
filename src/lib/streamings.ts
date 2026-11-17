@@ -2,17 +2,16 @@ export type StreamingChip = { id: string; name: string; providerIds: number[] };
 
 // IDs de provedor do TMDB para o Brasil (watch_region=BR).
 // Cada chip agrupa as variantes do mesmo serviço (com anúncios, canal Amazon…).
-// Conferir com `node scripts/list-br-providers.mjs`.
+// Conferidos com `node scripts/list-br-providers.mjs` em 2026-11-17.
 export const STREAMINGS: StreamingChip[] = [
-  { id: "netflix", name: "Netflix", providerIds: [8, 1796] },
-  { id: "prime", name: "Prime Video", providerIds: [119, 2100] },
-  { id: "max", name: "Max", providerIds: [1899] },
+  { id: "netflix", name: "Netflix", providerIds: [8, 1796] }, // + Standard with Ads
+  { id: "prime", name: "Prime Video", providerIds: [119, 2100] }, // + with Ads
+  { id: "max", name: "HBO Max", providerIds: [1899, 1825] }, // + Amazon Channel
   { id: "disney", name: "Disney+", providerIds: [337] },
   { id: "globoplay", name: "Globoplay", providerIds: [307] },
-  { id: "appletv", name: "Apple TV+", providerIds: [350, 2243] },
-  { id: "paramount", name: "Paramount+", providerIds: [531, 582] },
-  // TODO(verificar com token): ID do Mercado Play ainda não confirmado; chip sem IDs fica oculto.
-  { id: "mercadoplay", name: "Mercado Play", providerIds: [] },
+  { id: "appletv", name: "Apple TV", providerIds: [350, 2243] }, // + Amazon Channel
+  { id: "paramount", name: "Paramount+", providerIds: [531, 582, 2303] }, // + Amazon Channel, Premium
+  { id: "mercadoplay", name: "Mercado Play", providerIds: [2302] },
 ];
 
 export const COOKIE_NAME = "meus_streamings";
