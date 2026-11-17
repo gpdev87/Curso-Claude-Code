@@ -1,0 +1,63 @@
+{
+  "id": 872585,
+  "title": "Oppenheimer",
+  "overview": "A história do físico J. Robert Oppenheimer e seu papel no desenvolvimento da bomba atômica.",
+  "poster_path": "/c0DCmfC7Et2K3URnIJ4ahJpeXR2.jpg",
+  "backdrop_path": "/neeNHeXjMF5fXoCJRsOmkNGC7q.jpg",
+  "release_date": "2023-07-19",
+  "runtime": 180,
+  "vote_average": 8.06,
+  "genres": [{ "id": 18, "name": "Drama" }, { "id": 36, "name": "História" }],
+  "watch/providers": {
+    "results": {
+      "BR": {
+        "link": "https://www.themoviedb.org/movie/872585-oppenheimer/watch?locale=BR",
+        "flatrate": [
+          { "provider_id": 119, "provider_name": "Amazon Prime Video", "logo_path": "/pvske1MyAoymrs5bguRfVqYiM9a.jpg", "display_priority": 1 },
+          { "provider_id": 1899, "provider_name": "Max", "logo_path": "/jbe4gVSfRlbPTdESXhEKpornsfu.jpg", "display_priority": 4 }
+        ],
+        "rent": [
+          { "provider_id": 2, "provider_name": "Apple TV", "logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg", "display_priority": 6 }
+        ]
+      },
+      "US": {
+        "flatrate": [{ "provider_id": 387, "provider_name": "Peacock", "logo_path": "/x.jpg", "display_priority": 1 }]
+      }
+    }
+  },
+  "videos": {
+    "results": [
+      { "key": "teaserEN", "site": "YouTube", "type": "Teaser", "iso_639_1": "en" },
+      { "key": "trailerEN", "site": "YouTube", "type": "Trailer", "iso_639_1": "en" },
+      { "key": "trailerPT", "site": "YouTube", "type": "Trailer", "iso_639_1": "pt" },
+      { "key": "vimeo1", "site": "Vimeo", "type": "Trailer", "iso_639_1": "pt" }
+    ]
+  },
+  "credits": {
+    "cast": [
+      { "name": "Cillian Murphy", "character": "J. Robert Oppenheimer", "profile_path": "/a.jpg" },
+      { "name": "Emily Blunt", "character": "Kitty Oppenheimer", "profile_path": "/b.jpg" },
+      { "name": "Matt Damon", "character": "Leslie Groves", "profile_path": null },
+      { "name": "Robert Downey Jr.", "character": "Lewis Strauss", "profile_path": "/d.jpg" },
+      { "name": "Florence Pugh", "character": "Jean Tatlock", "profile_path": "/e.jpg" },
+      { "name": "Josh Hartnett", "character": "Ernest Lawrence", "profile_path": "/f.jpg" },
+      { "name": "Casey Affleck", "character": "Boris Pash", "profile_path": "/g.jpg" },
+      { "name": "Rami Malek", "character": "David Hill", "profile_path": "/h.jpg" },
+      { "name": "Kenneth Branagh", "character": "Niels Bohr", "profile_path": "/i.jpg" },
+      { "name": "Benny Safdie", "character": "Edward Teller", "profile_path": "/j.jpg" },
+      { "name": "Jason Clarke", "character": "Roger Robb", "profile_path": "/k.jpg" }
+    ]
+  },
+  "release_dates": {
+    "results": [
+      { "iso_3166_1": "US", "release_dates": [{ "certification": "R", "type": 3 }] },
+      { "iso_3166_1": "BR", "release_dates": [{ "certification": "", "type": 1 }, { "certification": "16", "type": 3 }] }
+    ]
+  },
+  "recommendations": {
+    "results": [
+      { "id": 157336, "title": "Interestelar", "poster_path": "/p1.jpg", "vote_average": 8.4, "release_date": "2014-11-05" },
+      { "id": 27205, "title": "A Origem", "poster_path": "/p2.jpg", "vote_average": 8.4, "release_date": "2010-07-15" }
+    ]
+  }
+}
