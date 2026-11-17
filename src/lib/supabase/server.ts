@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -32,7 +33,7 @@ export async function createClient(): Promise<SupabaseClient> {
   );
 }
 
-export async function getCurrentUser(): Promise<{ id: string; email: string } | null> {
+export const getCurrentUser = cache(async (): Promise<{ id: string; email: string } | null> => {
   if (!isSupabaseConfigured()) return null;
   try {
     const supabase = await createClient();
@@ -42,4 +43,4 @@ export async function getCurrentUser(): Promise<{ id: string; email: string } | 
   } catch {
     return null;
   }
-}
+});

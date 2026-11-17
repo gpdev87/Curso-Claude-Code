@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MarkButtons } from "@/components/MarkButtons";
@@ -33,6 +33,8 @@ describe("MarkButtons", () => {
     await userEvent.click(visto()); // ignorado durante o salvamento
     expect(save).toHaveBeenCalledTimes(1);
     resolve({ ok: true });
+    await vi.waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    await act(async () => {});
   });
 
   it("switches from quero to visto", async () => {
