@@ -2,12 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl()),
   title: { default: "CineCasa", template: "%s · CineCasa" },
   description: "O que tem de bom nos seus streamings hoje.",
 };

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { PersonalizeNotice } from "@/components/PersonalizeNotice";
-import { Shelf } from "@/components/Shelf";
+import { ShelfList } from "@/components/ShelfList";
 import { StreamingSelector } from "@/components/StreamingSelector";
 import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
 import { getAllShelves } from "@/lib/tmdb/discover";
@@ -19,9 +19,7 @@ export default async function Home() {
     <>
       <StreamingSelector selected={selected} others={others} />
       {selected.length === 0 && <PersonalizeNotice />}
-      {shelves.map(({ shelf, movies }) => (
-        <Shelf key={shelf.id} title={shelf.title} movies={movies} />
-      ))}
+      <ShelfList shelves={shelves} />
     </>
   );
 }

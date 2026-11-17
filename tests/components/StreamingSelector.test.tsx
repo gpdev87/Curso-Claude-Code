@@ -43,6 +43,21 @@ describe("StreamingSelector", () => {
   });
 });
 
+describe("StreamingSelector with saved extra providers", () => {
+  it("shows selected p<id> chips without expanding, so they can be cleared", async () => {
+    render(<StreamingSelector selected={["p190"]} others={[{ id: 190, name: "Curiosity", logoPath: null }]} />);
+    const chip = screen.getByRole("button", { name: "Curiosity" });
+    expect(chip).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(chip);
+    expect(cookieValue()).toBe("");
+  });
+
+  it("shows a selected provider even when the providers list failed to load", () => {
+    render(<StreamingSelector selected={["p190"]} others={[]} />);
+    expect(screen.getByRole("button", { name: "Serviço 190" })).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
 describe("PersonalizeNotice", () => {
   it("shows the hint", () => {
     render(<PersonalizeNotice />);

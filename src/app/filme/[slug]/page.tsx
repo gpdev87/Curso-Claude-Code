@@ -7,6 +7,7 @@ import { ProviderList } from "@/components/ProviderList";
 import { ShareButton } from "@/components/ShareButton";
 import { Shelf } from "@/components/Shelf";
 import { formatRuntime, imageUrl, movieSlug, parseMovieSlug, releaseYear } from "@/lib/format";
+import { siteUrl } from "@/lib/site";
 import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
 import { annotateRecommendations, getMovieDetail } from "@/lib/tmdb/movie";
 
@@ -14,8 +15,6 @@ const loadMovie = cache(async (slug: string) => {
   const id = parseMovieSlug(slug);
   return id ? getMovieDetail(id) : null;
 });
-
-const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function generateMetadata({ params }: PageProps<"/filme/[slug]">): Promise<Metadata> {
   const { slug } = await params;

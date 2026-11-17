@@ -23,6 +23,17 @@ export function StreamingSelector({ selected, others }: { selected: string[]; ot
   const [current, setCurrent] = useState(selected);
   const [showOthers, setShowOthers] = useState(false);
 
+  // Extras salvos ficam sempre visíveis, para a pessoa ver e poder desmarcar.
+  // Fixados pela seleção inicial, para o chip não sumir ao ser desmarcado.
+  const [selectedExtras] = useState<Provider[]>(() =>
+    selected
+      .filter((id) => /^p\d+$/.test(id))
+      .map((id) => {
+        const providerId = Number(id.slice(1));
+        return others.find((p) => p.id === providerId) ?? { id: providerId, name: `Serviço ${providerId}`, logoPath: null };
+      }),
+  );
+
   function toggle(id: string) {
     const next = current.includes(id) ? current.filter((c) => c !== id) : [...current, id];
     setCurrent(next);
@@ -35,10 +46,15 @@ export function StreamingSelector({ selected, others }: { selected: string[]; ot
       {STREAMINGS.filter((s) => s.providerIds.length > 0).map((s) => (
         <Chip key={s.id} label={s.name} on={current.includes(s.id)} onClick={() => toggle(s.id)} />
       ))}
+      {selectedExtras.map((p) => (
+        <Chip key={p.id} label={p.name} on={current.includes(`p${p.id}`)} onClick={() => toggle(`p${p.id}`)} />
+      ))}
       {showOthers &&
-        others.map((p) => (
-          <Chip key={p.id} label={p.name} on={current.includes(`p${p.id}`)} onClick={() => toggle(`p${p.id}`)} />
-        ))}
+        others
+          .filter((p) => !selectedExtras.some((s) => s.id === p.id))
+          .map((p) => (
+            <Chip key={p.id} label={p.name} on={current.includes(`p${p.id}`)} onClick={() => toggle(`p${p.id}`)} />
+          ))}
       {others.length > 0 && (
         <button
           type="button"
