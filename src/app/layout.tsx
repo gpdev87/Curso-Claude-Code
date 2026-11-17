@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
 import { signOut } from "@/app/entrar/actions";
 import { siteUrl } from "@/lib/site";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { getCurrentUser, isSupabaseConfigured } from "@/lib/supabase/server";
 import "./globals.css";
 
 const shoulders = Big_Shoulders({ variable: "--font-shoulders", subsets: ["latin"] });
@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${shoulders.variable} ${instrument.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <SiteHeader userEmail={user?.email ?? null} signOutAction={signOut} />
+        <SiteHeader userEmail={user?.email ?? null} signOutAction={signOut} accountsEnabled={isSupabaseConfigured()} />
         <main className="w-full flex-1">{children}</main>
         <Footer />
       </body>

@@ -18,6 +18,13 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("button", { name: "Conta" })).not.toBeInTheDocument();
   });
 
+  it("hides Entrar and Minhas listas when accounts are disabled", () => {
+    render(<SiteHeader userEmail={null} signOutAction={signOut} accountsEnabled={false} />);
+    expect(screen.queryByRole("link", { name: "Entrar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Minhas listas" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Buscar" })).toBeInTheDocument();
+  });
+
   it("opens the account menu with email and sign out when logged in", () => {
     render(<SiteHeader userEmail="ana@exemplo.com" signOutAction={signOut} />);
     expect(screen.queryByRole("link", { name: "Entrar" })).not.toBeInTheDocument();

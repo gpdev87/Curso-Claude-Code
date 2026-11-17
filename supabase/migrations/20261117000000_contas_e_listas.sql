@@ -21,12 +21,14 @@ create table public.user_settings (
 alter table public.movie_marks enable row level security;
 alter table public.user_settings enable row level security;
 
-create policy "movie_marks_select" on public.movie_marks for select using (auth.uid() = user_id);
-create policy "movie_marks_insert" on public.movie_marks for insert with check (auth.uid() = user_id);
-create policy "movie_marks_update" on public.movie_marks for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "movie_marks_delete" on public.movie_marks for delete using (auth.uid() = user_id);
+grant select, insert, update, delete on public.movie_marks, public.user_settings to authenticated;
 
-create policy "user_settings_select" on public.user_settings for select using (auth.uid() = user_id);
-create policy "user_settings_insert" on public.user_settings for insert with check (auth.uid() = user_id);
-create policy "user_settings_update" on public.user_settings for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "user_settings_delete" on public.user_settings for delete using (auth.uid() = user_id);
+create policy "movie_marks_select" on public.movie_marks for select to authenticated using ((select auth.uid()) = user_id);
+create policy "movie_marks_insert" on public.movie_marks for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "movie_marks_update" on public.movie_marks for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+create policy "movie_marks_delete" on public.movie_marks for delete to authenticated using ((select auth.uid()) = user_id);
+
+create policy "user_settings_select" on public.user_settings for select to authenticated using ((select auth.uid()) = user_id);
+create policy "user_settings_insert" on public.user_settings for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "user_settings_update" on public.user_settings for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+create policy "user_settings_delete" on public.user_settings for delete to authenticated using ((select auth.uid()) = user_id);

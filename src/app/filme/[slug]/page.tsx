@@ -11,7 +11,7 @@ import { formatRuntime, imageUrl, movieSlug, parseMovieSlug, releaseYear } from 
 import { getMarkStatus } from "@/lib/marks";
 import { siteUrl } from "@/lib/site";
 import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { getCurrentUser, isSupabaseConfigured } from "@/lib/supabase/server";
 import { annotateRecommendations, getMovieDetail } from "@/lib/tmdb/movie";
 
 const loadMovie = cache(async (slug: string) => {
@@ -113,12 +113,14 @@ export default async function MoviePage({ params }: PageProps<"/filme/[slug]">) 
                   Ver trailer
                 </a>
               )}
-              <MarkButtons
-                movie={{ movieId: movie.id, title: movie.title, posterPath: movie.posterPath }}
-                initialStatus={markStatus}
-                loggedIn={user !== null}
-                loginHref={loginHref}
-              />
+              {isSupabaseConfigured() && (
+                <MarkButtons
+                  movie={{ movieId: movie.id, title: movie.title, posterPath: movie.posterPath }}
+                  initialStatus={markStatus}
+                  loggedIn={user !== null}
+                  loginHref={loginHref}
+                />
+              )}
               <ShareButton title={movie.title} url={shareUrl} />
             </div>
 

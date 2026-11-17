@@ -9,6 +9,11 @@ describe("safeNext", () => {
   it("usa o primeiro valor de um array", () => {
     expect(safeNext(["/a", "/b"])).toBe("/a");
   });
+  it("bloqueia controles, espaços e barra invertida (bypass de //)", () => {
+    for (const v of ["/\t/evil.com", "/\n/evil.com", "/\r/evil.com", "/\\evil.com", "/ /evil.com"]) {
+      expect(safeNext(v)).toBe("/");
+    }
+  });
   it("volta para / quando o valor é inseguro ou ausente", () => {
     for (const v of ["//evil.com", "https://evil.com", "/\\evil.com", "", undefined, null, "filme"]) {
       expect(safeNext(v)).toBe("/");

@@ -5,9 +5,11 @@ import { syncStreamingsAfterLogin } from "@/lib/account/streamings-cookie";
 import { authErrorMessage } from "@/lib/auth/messages";
 import { safeNext } from "@/lib/auth/next";
 import { siteUrl } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
 export type AuthState = { error?: string; info?: string; email?: string } | undefined;
+
+const UNAVAILABLE = "Contas indisponíveis no momento.";
 
 function text(form: FormData, name: string): string {
   const v = form.get(name);
@@ -16,6 +18,7 @@ function text(form: FormData, name: string): string {
 
 export async function signIn(_prev: AuthState, form: FormData): Promise<AuthState> {
   const email = text(form, "email").trim();
+  if (!isSupabaseConfigured()) return { error: UNAVAILABLE, email };
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: text(form, "password") });
   if (error || !data.user) return { error: authErrorMessage(error?.code), email };
@@ -25,6 +28,7 @@ export async function signIn(_prev: AuthState, form: FormData): Promise<AuthStat
 
 export async function signUp(_prev: AuthState, form: FormData): Promise<AuthState> {
   const email = text(form, "email").trim();
+  if (!isSupabaseConfigured()) return { error: UNAVAILABLE, email };
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({ email, password: text(form, "password") });
   if (error || !data.user) return { error: authErrorMessage(error?.code), email };
@@ -34,6 +38,7 @@ export async function signUp(_prev: AuthState, form: FormData): Promise<AuthStat
 
 export async function requestPasswordReset(_prev: AuthState, form: FormData): Promise<AuthState> {
   const email = text(form, "email").trim();
+  if (!isSupabaseConfigured()) return { error: UNAVAILABLE, email };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${siteUrl()}/auth/confirm?next=/redefinir-senha`,
@@ -46,14 +51,17 @@ export async function requestPasswordReset(_prev: AuthState, form: FormData): Pr
 }
 
 export async function updatePassword(_prev: AuthState, form: FormData): Promise<AuthState> {
+  if (!isSupabaseConfigured()) return { error: UNAVAILABLE, email: "" };
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: text(form, "password") });
   if (error) return { error: authErrorMessage(error.code) };
+  const { data } = await supabase.auth.getUser();
+  if (data.user) await syncStreamingsAfterLogin(supabase, data.user.id);
   redirect("/");
 }
 
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }

@@ -10,9 +10,10 @@ const NAV = [
   { href: "/minhas-listas", label: "Minhas listas" },
 ];
 
-type Props = { userEmail: string | null; signOutAction: () => Promise<void> };
+type Props = { userEmail: string | null; signOutAction: () => Promise<void>; accountsEnabled?: boolean };
 
-export function SiteHeader({ userEmail, signOutAction }: Props) {
+export function SiteHeader({ userEmail, signOutAction, accountsEnabled = true }: Props) {
+  const nav = accountsEnabled ? NAV : NAV.filter((i) => i.href !== "/minhas-listas");
   const pathname = usePathname();
   const [solid, setSolid] = useState(false);
   // O menu guarda a rota em que foi aberto: ao navegar, fecha sozinho.
@@ -59,7 +60,7 @@ export function SiteHeader({ userEmail, signOutAction }: Props) {
         </Link>
 
         <nav aria-label="Principal" className="hidden items-center gap-5 text-sm sm:flex">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
@@ -85,17 +86,19 @@ export function SiteHeader({ userEmail, signOutAction }: Props) {
           </svg>
         </Link>
 
-        <Link
-          href="/minhas-listas"
-          aria-label="Minhas listas"
-          className="grid h-10 w-10 place-items-center rounded-full text-texto hover:bg-white/10 sm:hidden"
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
-          </svg>
-        </Link>
+        {accountsEnabled && (
+          <Link
+            href="/minhas-listas"
+            aria-label="Minhas listas"
+            className="grid h-10 w-10 place-items-center rounded-full text-texto hover:bg-white/10 sm:hidden"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
+            </svg>
+          </Link>
+        )}
 
-        {userEmail ? (
+        {!accountsEnabled ? null : userEmail ? (
           <div ref={menuRef} className="relative">
             <button
               ref={buttonRef}

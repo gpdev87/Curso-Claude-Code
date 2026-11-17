@@ -20,6 +20,7 @@ const auth = {
   signOut: vi.fn(),
   resetPasswordForEmail: vi.fn(),
   updateUser: vi.fn(),
+  getUser: vi.fn(),
 };
 const upsert = vi.fn();
 const maybeSingle = vi.fn();
@@ -30,7 +31,11 @@ const supabase = {
     upsert,
   })),
 };
-vi.mock("@/lib/supabase/server", () => ({ createClient: async () => supabase }));
+const configured = vi.hoisted(() => ({ value: true }));
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: async () => supabase,
+  isSupabaseConfigured: () => configured.value,
+}));
 
 import { requestPasswordReset, signIn, signOut, signUp, updatePassword } from "@/app/entrar/actions";
 import { COOKIE_NAME, parseMyStreamings } from "@/lib/streamings";
@@ -45,8 +50,21 @@ const ok = { data: { user: { id: "u1" } }, error: null };
 beforeEach(() => {
   store.clear();
   vi.clearAllMocks();
+  configured.value = true;
+  auth.getUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   maybeSingle.mockResolvedValue({ data: { streamings: [] }, error: null });
   upsert.mockResolvedValue({ error: null });
+});
+
+describe("sem Supabase configurado", () => {
+  it("devolve erro em vez de lançar", async () => {
+    configured.value = false;
+    const msg = "Contas indisponíveis no momento.";
+    expect(await signIn(undefined, form({ email: "a@b.com", password: "x" }))).toEqual({ error: msg, email: "a@b.com" });
+    expect(await signUp(undefined, form({ email: "a@b.com", password: "x" }))).toEqual({ error: msg, email: "a@b.com" });
+    expect(await requestPasswordReset(undefined, form({ email: "a@b.com" }))).toEqual({ error: msg, email: "a@b.com" });
+    expect(await updatePassword(undefined, form({ password: "x" }))).toEqual({ error: msg, email: "" });
+  });
 });
 
 describe("signIn", () => {
@@ -125,6 +143,13 @@ describe("updatePassword / signOut", () => {
     expect(auth.updateUser).toHaveBeenCalledWith({ password: "novasenha" });
   });
 
+  it("syncs the device streamings to the account after a reset login", async () => {
+    auth.updateUser.mockResolvedValue({ data: {}, error: null });
+    store.set(COOKIE_NAME, "netflix");
+    await expect(updatePassword(undefined, form({ password: "novasenha" }))).rejects.toThrow("REDIRECT:/");
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "u1", streamings: ["netflix"] }));
+  });
+
   it("returns the error when the update fails", async () => {
     auth.updateUser.mockResolvedValue({ data: {}, error: { code: "same_password" } });
     const r = await updatePassword(undefined, form({ password: "x" }));
@@ -135,6 +160,7 @@ describe("updatePassword / signOut", () => {
     auth.signOut.mockResolvedValue({ error: null });
     store.set(COOKIE_NAME, "netflix");
     await expect(signOut()).rejects.toThrow("REDIRECT:/");
+    expect(auth.signOut).toHaveBeenCalledWith({ scope: "local" });
     expect(store.get(COOKIE_NAME)).toBe("netflix");
   });
 });

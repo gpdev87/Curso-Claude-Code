@@ -36,7 +36,7 @@ O site funciona sem login. Contas (e-mail e senha) guardam as listas "Quero assi
 3. Em **Authentication → Sign In / Providers**, deixe **Email** ligado e **Confirm email** desligado.
 4. Em **Authentication → URL Configuration**, ponha em **Site URL** o domínio da Vercel e, em **Redirect URLs**, `http://localhost:3000/**` e o domínio.
 5. SMTP (para o e-mail de redefinir senha): use o Gmail com senha de app (ative a verificação em 2 etapas e crie a senha em https://myaccount.google.com/apppasswords). Host `smtp.gmail.com`, porta 465 ou 587, usuário = o seu Gmail.
-6. Em **Authentication → Email Templates**, edite o modelo **Reset Password** em português, com o link `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/redefinir-senha`.
+6. Em **Authentication → Email Templates**, edite o modelo **Reset Password** em português, com o link `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=recovery`. O `redirectTo` (`<site>/auth/confirm?next=/redefinir-senha`) precisa estar na lista **Redirect URLs** do passo 4 (localhost e o domínio da Vercel), senão o Supabase ignora e usa a Site URL.
 7. Na Vercel, defina as mesmas duas variáveis em **Environment Variables**.
 8. O projeto gratuito do Supabase pausa após cerca de 1 semana sem uso; reative no painel.
 
