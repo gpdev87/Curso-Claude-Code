@@ -2,16 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const NAV = [
   { href: "/", label: "Início" },
   { href: "/busca", label: "Buscar" },
+  { href: "/minhas-listas", label: "Minhas listas" },
 ];
 
-export function SiteHeader() {
+type Props = { userEmail: string | null; signOutAction: () => Promise<void> };
+
+export function SiteHeader({ userEmail, signOutAction }: Props) {
   const pathname = usePathname();
   const [solid, setSolid] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -19,6 +24,22 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    const onDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDown);
+    };
+  }, [menuOpen]);
 
   return (
     <header
@@ -57,6 +78,47 @@ export function SiteHeader() {
             <path d="m20 20-3.5-3.5" strokeLinecap="round" />
           </svg>
         </Link>
+
+        <Link
+          href="/minhas-listas"
+          aria-label="Minhas listas"
+          className="grid h-10 w-10 place-items-center rounded-full text-texto hover:bg-white/10 sm:hidden"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
+          </svg>
+        </Link>
+
+        {userEmail ? (
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              aria-label="Conta"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((o) => !o)}
+              className="grid h-10 w-10 place-items-center rounded-full text-texto hover:bg-white/10"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-12 w-64 rounded-lg bg-sala p-3 text-sm shadow-lg ring-1 ring-white/10">
+                <p className="truncate pb-3 text-texto/70">{userEmail}</p>
+                <form action={signOutAction}>
+                  <button type="submit" className="w-full rounded-md px-3 py-2 text-left text-texto hover:bg-white/10">
+                    Sair
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link href="/entrar" className="rounded-full px-4 py-2 text-sm font-semibold text-texto hover:bg-white/10">
+            Entrar
+          </Link>
+        )}
       </div>
     </header>
   );

@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, Instrument_Sans } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { SiteHeader } from "@/components/SiteHeader";
+import { signOut } from "@/app/entrar/actions";
 import { siteUrl } from "@/lib/site";
+import { getCurrentUser } from "@/lib/supabase/server";
 import "./globals.css";
 
 const shoulders = Big_Shoulders({ variable: "--font-shoulders", subsets: ["latin"] });
@@ -16,11 +18,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#0c0d11" };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const user = await getCurrentUser();
   return (
     <html lang="pt-BR" className={`${shoulders.variable} ${instrument.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
+        <SiteHeader userEmail={user?.email ?? null} signOutAction={signOut} />
         <main className="w-full flex-1">{children}</main>
         <Footer />
       </body>
