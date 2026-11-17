@@ -11,7 +11,10 @@ export function safeNext(value: string | string[] | null | undefined): string {
   try {
     const u = new URL(v, "http://x");
     if (u.origin !== "http://x") return "/";
-    return u.pathname + u.search + u.hash;
+    const out = u.pathname + u.search + u.hash;
+    // Dot segments ("/.//evil.com") podem resultar em "//": confere a saída.
+    if (out.startsWith("//") || out.startsWith("/\\")) return "/";
+    return out;
   } catch {
     return "/";
   }

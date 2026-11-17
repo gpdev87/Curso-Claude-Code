@@ -14,6 +14,11 @@ describe("safeNext", () => {
       expect(safeNext(v)).toBe("/");
     }
   });
+  it("normalizado não pode começar com //", () => {
+    for (const v of ["/.//evil.com", "/a/..//evil.com", "/%2e//evil.com"]) {
+      expect(safeNext(v)).toBe("/");
+    }
+  });
   it("volta para / quando o valor é inseguro ou ausente", () => {
     for (const v of ["//evil.com", "https://evil.com", "/\\evil.com", "", undefined, null, "filme"]) {
       expect(safeNext(v)).toBe("/");
