@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SHELVES, buildDiscoverParams, getAllShelves } from "@/lib/tmdb/discover";
+import { SHELVES, buildCategoryParams, buildDiscoverParams, getAllShelves, getCategoryPage } from "@/lib/tmdb/discover";
 
 const shelf = (id: string) => SHELVES.find((s) => s.id === id)!;
 
@@ -72,5 +72,70 @@ describe("getAllShelves", () => {
   it("rejects when every shelf fails", async () => {
     fetchMock.mockResolvedValue({ ok: false, status: 401 });
     await expect(getAllShelves([])).rejects.toMatchObject({ name: "TmdbError", status: 401 });
+  });
+});
+
+describe("seeAllHref", () => {
+  it("links genre shelves and top rated to category pages", () => {
+    expect(shelf("terror").seeAllHref).toBe("/categoria/terror");
+    expect(shelf("ficcao").seeAllHref).toBe("/categoria/ficcao-cientifica");
+    expect(shelf("mais-avaliados").seeAllHref).toBe("/categoria/todas?ordem=nota");
+    expect(shelf("em-alta").seeAllHref).toBeUndefined();
+  });
+});
+
+describe("buildCategoryParams", () => {
+  it("sorts by rating with a 300-vote minimum", () => {
+    const p = buildCategoryParams(27, "nota", [8], 3);
+    expect(p).toMatchObject({
+      with_genres: 27,
+      sort_by: "vote_average.desc",
+      "vote_count.gte": 300,
+      page: 3,
+      with_watch_providers: "8",
+      watch_region: "BR",
+      with_watch_monetization_types: "flatrate",
+    });
+  });
+  it("sorts by popularity without genre or provider filters", () => {
+    const p = buildCategoryParams(null, "alta", [], 1);
+    expect(p.with_genres).toBeUndefined();
+    expect(p.with_watch_providers).toBeUndefined();
+    expect(p["vote_count.gte"]).toBeUndefined();
+    expect(p.sort_by).toBe("popularity.desc");
+  });
+});
+
+describe("getCategoryPage", () => {
+  const fetchMock = vi.fn();
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubEnv("TMDB_READ_ACCESS_TOKEN", "tok");
+    fetchMock.mockReset();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+  const respond = (total_pages: number) =>
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        results: [{ id: 1, title: "X", poster_path: null, vote_average: 7, release_date: "" }],
+        total_pages,
+      }),
+    });
+
+  it("reports more pages until the last one", async () => {
+    respond(3);
+    expect((await getCategoryPage(27, "alta", [], 2)).hasMore).toBe(true);
+    const last = await getCategoryPage(27, "alta", [], 3);
+    expect(last.hasMore).toBe(false);
+    expect(last.movies.map((m) => m.id)).toEqual([1]);
+  });
+  it("caps at TMDB's 500-page limit", async () => {
+    respond(900);
+    expect((await getCategoryPage(null, "nota", [], 500)).hasMore).toBe(false);
   });
 });

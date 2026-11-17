@@ -1,4 +1,5 @@
 import { REVALIDATE_LISTS, type TmdbParams, tmdbFetch, toMovieSummary } from "./client";
+import type { CategoryOrder } from "@/lib/categories";
 import type { MovieSummary } from "./types";
 
 export type ShelfDef = {
@@ -8,18 +9,27 @@ export type ShelfDef = {
   genreId?: number;
   minVotes?: number;
   releasedUntilToday?: boolean;
+  /** Link "Ver tudo ›" para a página de categoria. */
+  seeAllHref?: string;
 };
 
-const genre = (id: string, title: string, genreId: number): ShelfDef => ({
+const genre = (id: string, title: string, genreId: number, categorySlug = id): ShelfDef => ({
   id,
   title,
   sort: "popularity.desc",
   genreId,
+  seeAllHref: `/categoria/${categorySlug}`,
 });
 
 export const SHELVES: ShelfDef[] = [
   { id: "em-alta", title: "Top 10 em alta hoje", sort: "popularity.desc" },
-  { id: "mais-avaliados", title: "Mais bem avaliados", sort: "vote_average.desc", minVotes: 300 },
+  {
+    id: "mais-avaliados",
+    title: "Mais bem avaliados",
+    sort: "vote_average.desc",
+    minVotes: 300,
+    seeAllHref: "/categoria/todas?ordem=nota",
+  },
   {
     id: "recem-lancados",
     title: "Recém-lançados",
@@ -34,14 +44,23 @@ export const SHELVES: ShelfDef[] = [
   genre("drama", "Drama", 18),
   genre("animacao", "Animação", 16),
   genre("romance", "Romance", 10749),
-  genre("ficcao", "Ficção científica", 878),
+  genre("ficcao", "Ficção científica", 878, "ficcao-cientifica"),
 ];
 
-export function buildDiscoverParams(shelf: ShelfDef, providerIds: number[], today: string): TmdbParams {
+const MAX_PAGES = 500;
+const TOP_RATED_MIN_VOTES = 300;
+
+function streamingParams(providerIds: number[]): TmdbParams {
   return {
     watch_region: "BR",
     with_watch_monetization_types: "flatrate",
     with_watch_providers: providerIds.length ? providerIds.join("|") : undefined,
+  };
+}
+
+export function buildDiscoverParams(shelf: ShelfDef, providerIds: number[], today: string): TmdbParams {
+  return {
+    ...streamingParams(providerIds),
     sort_by: shelf.sort,
     with_genres: shelf.genreId,
     "vote_count.gte": shelf.minVotes,
@@ -74,4 +93,36 @@ export async function getAllShelves(
   return settled.flatMap((result, i) =>
     result.status === "fulfilled" && result.value.length > 0 ? [{ shelf: SHELVES[i], movies: result.value }] : [],
   );
+}
+
+export function buildCategoryParams(
+  genreId: number | null,
+  order: CategoryOrder,
+  providerIds: number[],
+  page: number,
+): TmdbParams {
+  return {
+    ...streamingParams(providerIds),
+    with_genres: genreId ?? undefined,
+    sort_by: order === "nota" ? "vote_average.desc" : "popularity.desc",
+    "vote_count.gte": order === "nota" ? TOP_RATED_MIN_VOTES : undefined,
+    page,
+  };
+}
+
+export async function getCategoryPage(
+  genreId: number | null,
+  order: CategoryOrder,
+  providerIds: number[],
+  page: number,
+): Promise<{ movies: MovieSummary[]; hasMore: boolean }> {
+  const data = await tmdbFetch<{ results: unknown[]; total_pages: number }>(
+    "/discover/movie",
+    buildCategoryParams(genreId, order, providerIds, page),
+    REVALIDATE_LISTS,
+  );
+  return {
+    movies: data.results.map(toMovieSummary),
+    hasMore: page < Math.min(data.total_pages ?? 0, MAX_PAGES),
+  };
 }
