@@ -54,3 +54,29 @@ describe("PosterCard", () => {
     );
   });
 });
+
+describe("PosterCard rating", () => {
+  it("shows the TMDB rating with one decimal when asked", () => {
+    render(<PosterCard movie={{ ...m(4, "Nota"), voteAverage: 7.84 }} showRating />);
+    expect(screen.getByText("★ 7.8")).toBeInTheDocument();
+  });
+  it("hides a zero rating", () => {
+    render(<PosterCard movie={{ ...m(5, "Sem nota"), voteAverage: 0 }} showRating />);
+    expect(screen.queryByText(/★/)).toBeNull();
+  });
+  it("hides the rating by default", () => {
+    render(<PosterCard movie={m(6, "Padrão")} />);
+    expect(screen.queryByText(/★/)).toBeNull();
+  });
+});
+
+describe("Shelf see all", () => {
+  it("links to the category page", () => {
+    render(<Shelf title="Terror" movies={[m(1, "A")]} seeAllHref="/categoria/terror" />);
+    expect(screen.getByRole("link", { name: /Ver tudo/ })).toHaveAttribute("href", "/categoria/terror");
+  });
+  it("has no see all link without a target", () => {
+    render(<Shelf title="Top" movies={[m(1, "A")]} />);
+    expect(screen.queryByRole("link", { name: /Ver tudo/ })).toBeNull();
+  });
+});

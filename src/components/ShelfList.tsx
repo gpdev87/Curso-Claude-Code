@@ -13,7 +13,7 @@ export function ShelfList({ shelves }: { shelves: { shelf: ShelfDef; movies: Mov
   return (
     <div>
       {shelves.map(({ shelf, movies }) => (
-        <Shelf key={shelf.id} title={shelf.title} movies={movies} ranked={shelf.id === "em-alta"} />
+        <Shelf key={shelf.id} title={shelf.title} movies={movies} ranked={shelf.id === "em-alta"} seeAllHref={shelf.seeAllHref} />
       ))}
     </div>
   );
