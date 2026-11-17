@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/*
+ * CineCasa — sala escura, luz de projetor.
+ * sala: fundo · poltrona: superfícies · cortina: superfícies elevadas
+ * projetor: destaque âmbar · assina: “você já assina”
+ */
+:root {
+  --sala: #0c0d11;
+  --poltrona: #16171d;
+  --cortina: #24262f;
+  --texto: #f3f3f5;
+  --apagado: #a1a4af;
+  --projetor: #f4b740;
+  --assina: #45d49a;
+}
+
+@theme inline {
+  --color-sala: var(--sala);
+  --color-poltrona: var(--poltrona);
+  --color-cortina: var(--cortina);
+  --color-texto: var(--texto);
+  --color-apagado: var(--apagado);
+  --color-projetor: var(--projetor);
+  --color-assina: var(--assina);
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-display: var(--font-shoulders), Impact, sans-serif;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--sala);
+  color: var(--texto);
+  font-family: var(--font-instrument), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--projetor);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Numeral do Top 10: contorno vazado, como letreiro apagado */
+.rank-numeral {
+  color: var(--sala);
+  -webkit-text-stroke: 2px #5b5e6a;
+  paint-order: stroke fill;
+}
+
+/* Único momento de entrada: o destaque acende como a tela do cinema */
+@keyframes acender {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-backdrop {
+  animation: backdrop-in 1.2s ease-out both;
+}
+.hero-copy > * {
+  animation: acender 0.7s ease-out both;
+}
+.hero-copy > *:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.hero-copy > *:nth-child(3) {
+  animation-delay: 0.22s;
+}
+.hero-copy > *:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.hero-copy > *:nth-child(n + 5) {
+  animation-delay: 0.38s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-backdrop,
+  .hero-copy > * {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
