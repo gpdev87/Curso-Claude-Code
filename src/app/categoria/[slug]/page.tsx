@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { CategoryNav } from "@/components/CategoryNav";
 import { categoryBySlug, parseOrder } from "@/lib/categories";
-import { COOKIE_NAME, parseMyStreamings, providerIdsFor } from "@/lib/streamings";
+import { COOKIE_NAME, parseMyStreamings, providerIdsFor, serializeMyStreamings } from "@/lib/streamings";
 import { getCategoryPage } from "@/lib/tmdb/discover";
 
 const heading = (slug: string, name: string) => (slug === "todas" ? "Todos os filmes" : name);
@@ -28,7 +28,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
 
   const order = parseOrder((await searchParams).ordem);
   const cookieStore = await cookies();
-  const providerIds = providerIdsFor(parseMyStreamings(cookieStore.get(COOKIE_NAME)?.value));
+  const selected = parseMyStreamings(cookieStore.get(COOKIE_NAME)?.value);
+  const providerIds = providerIdsFor(selected);
   const { movies, hasMore } = await getCategoryPage(category.genreId, order, providerIds, 1);
 
   return (
@@ -54,6 +55,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
             order={order}
             initialMovies={movies}
             initialHasMore={hasMore}
+            streamings={serializeMyStreamings(selected)}
           />
         )}
       </div>

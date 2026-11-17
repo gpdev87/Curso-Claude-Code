@@ -13,12 +13,15 @@ export function CategoryGrid({
   order,
   initialMovies,
   initialHasMore,
+  streamings,
   load = loadCategoryPage,
 }: {
   slug: string;
   order: CategoryOrder;
   initialMovies: MovieSummary[];
   initialHasMore: boolean;
+  /** Filtro de streamings usado na página 1 (valor serializado do cookie). */
+  streamings: string;
   load?: LoadPage;
 }) {
   const [movies, setMovies] = useState(initialMovies);
@@ -29,7 +32,7 @@ export function CategoryGrid({
   async function loadMore() {
     setStatus("loading");
     try {
-      const result = await load(slug, order, nextPage);
+      const result = await load(slug, order, nextPage, streamings);
       setMovies((current) => {
         const seen = new Set(current.map((m) => m.id));
         return [...current, ...result.movies.filter((m) => !seen.has(m.id))];
